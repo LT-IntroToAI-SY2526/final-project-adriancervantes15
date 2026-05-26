@@ -266,6 +266,20 @@ def get_timezone(place: str) -> str:
     match_obj = get_match(infobox_text, pattern, error_text)
     return match_obj.group("zone").strip()
 
+def get_tld(place: str) -> str:
+    """Gets the internet TLD of the given place"""
+    search_term = place.strip().title()
+    html = get_page_html(search_term)
+    infobox_text = clean_text(get_first_infobox_text(html))
+
+    # Matches .fr, .us, .uk, .co.uk, .ac.jp, etc.
+    pattern = r"TLD\s*(?:\(.*?\))?\s*(?P<tld>\.[A-Za-z0-9.]+)"
+    error_text = f"I found the page for {search_term}, but couldn't identify the TLD."
+
+    match_obj = get_match(infobox_text, pattern, error_text)
+    return match_obj.group("tld").strip()
+
+
 
 
 
@@ -345,6 +359,9 @@ def timezone_of_place(matches: List[str]) -> List[str]:
     """Action function for the time zone query."""
     return [get_timezone(" ".join(matches))]
 
+def tld_of_place(matches: List[str]) -> List[str]:
+    """Action function for the TLD query."""
+    return [get_tld(" ".join(matches))]
 
 
 
@@ -384,6 +401,9 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the anthem".split(), anthem_of_place),
     ("what is the calling code".split(), calling_code_of_place),
     ("what is the time zone".split(), timezone_of_place),
+    ("what is the tld".split(), tld_of_place),
+    ("what is the domain".split(), tld_of_place),
+
 
     #new 
     ("what is the area of %".split(), area_of_place),
@@ -398,6 +418,9 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("how do i call %".split(), calling_code_of_place),
     ("what is the time zone of %".split(), timezone_of_place),
     ("what time zone is % in".split(), timezone_of_place),
+    ("what is the tld of %".split(), tld_of_place),
+    ("what is the internet tld of %".split(), tld_of_place),
+    ("what is the domain of %".split(), tld_of_place),
 
 
 
